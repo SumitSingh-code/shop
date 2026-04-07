@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sumit's General Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2e7d32; /* Trustworthy Green */
+            --primary-light: #60ad5e;
+            --secondary: #ffb300; /* Warm Yellow */
+            --bg-color: #f4f7f6;
+            --text-main: #333;
+            --text-muted: #666;
+            --white: #ffffff;
+            --danger: #d32f2f;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 80px; /* Space for floating icons */
+        }
+
+        /* --- Header & Navigation --- */
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            text-align: center;
+            padding: 1.5rem 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .filters {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 1rem;
+            background: var(--white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        .filters::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-btn {
+            background: var(--bg-color);
+            border: 1px solid #ddd;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+            border-color: var(--primary);
+        }
+
+        /* --- Product Grid --- */
+        main {
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .card:active {
+            transform: scale(0.98);
+        }
+
+        .card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-body {
+            padding: 0.8rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .category-tag {
+            font-size: 0.7rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .product-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+            line-height: 1.2;
+        }
+
+        .product-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 0.8rem;
+            flex-grow: 1;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .price {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 1.1rem;
+        }
+
+        .add-btn {
+            background: var(--secondary);
+            color: var(--text-main);
+            border: none;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1.2rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- Floating Buttons --- */
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 100;
+            text-decoration: none;
+        }
+
+        .whatsapp-btn {
+            right: 20px;
+            background: #25D366;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .cart-btn {
+            left: 20px;
+            background: var(--primary);
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            font-size: 0.8rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* --- Cart Modal --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .cart-modal {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: var(--white);
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            transition: right 0.3s ease;
+        }
+
+        .cart-modal.active {
+            right: 0;
+        }
+
+        .cart-header {
+            padding: 1.5rem;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-cart {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .cart-body {
+            padding: 1rem;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cart-item img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .item-price {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .qty-btn {
+            background: #eee;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .cart-footer {
+            padding: 1.5rem;
+            background: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .totals {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .checkout-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkout-form input, .checkout-form textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-family: inherit;
+        }
+
+        .checkout-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .checkout-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Success Message Styling */
+        #success-message {
+            display: none;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        #success-message h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Sumit's General Store</h1>
+        <p>Quality groceries delivered to your door in Jind</p>
+    </header>
+
+    <nav class="filters" id="category-filters">
+        </nav>
+
+    <main>
+        <div class="grid" id="product-grid">
+            </div>
+    </main>
+
+    <div class="floating-btn cart-btn" onclick="toggleCart()">
+        🛒
+        <div class="cart-count" id="cart-badge">0</div>
+    </div>
+
+    <a href="https://wa.me/919876543210" target="_blank" class="floating-btn whatsapp-btn">
+        💬
+    </a>
+
+    <div class="modal-overlay" id="modal-overlay" onclick="toggleCart()"></div>
+    <div class="cart-modal" id="cart-modal">
+        <div class="cart-header">
+            <h2>Your Cart</h2>
+            <button class="close-cart" onclick="toggleCart()">✕</button>
+        </div>
+        
+        <div class="cart-body" id="cart-items">
+            </div>
+
+        <div id="success-message">
+            <h3>🎉 Order Placed!</h3>
+            <p>We have received your order details via email. We will contact you on WhatsApp shortly to confirm availability and delivery.</p>
+            <br>
+            <a href="https://wa.me/919876543210" style="color: var(--primary); font-weight: bold; text-decoration: none;">Message us on WhatsApp</a>
+        </div>
+
+        <div class="cart-footer" id="cart-footer">
+            <div class="totals">
+                <span>Total:</span>
+                <span id="grand-total">₹0</span>
+            </div>
+            <form class="checkout-form" id="checkout-form" onsubmit="submitOrder(event)">
+                <input type="text" name="Customer_Name" placeholder="Full Name" required>
+                <input type="tel" name="Phone_Number" placeholder="Phone (WhatsApp) Number" required>
+                <textarea name="Delivery_Address" placeholder="Complete Delivery Address in Jind" rows="2" required></textarea>
+                <textarea name="Special_Instructions" placeholder="Any special instructions? (Optional)" rows="1"></textarea>
+                
+                <input type="hidden" name="Order_Summary" id="hidden-order-summary">
+                
+                <button type="submit" class="checkout-btn" id="submit-btn">Place Order</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        // REPLACE THIS WITH YOUR FORMSPREE ID
+        const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID_HERE'; 
+        const SHOP_PHONE = '919876543210'; // Replace with your number
+
+        // --- Product Data ---
+        // I have distributed the 3 provided Imgbb links across 8 products as requested.
+        const products = [
+            { id: 1, name: "Aashirvaad Atta (5kg)", price: 280, category: "Groceries", image: "https://i.ibb.co/nNG4pLyf/IMG20240406175704.jpg", desc: "Premium whole wheat flour" },
+            { id: 2, name: "Amul Butter (500g)", price: 280, category: "Dairy", image: "https://i.ibb.co/23hLGSjp/IMG20240507091050.jpg", desc: "Fresh salted butter" },
+            { id: 3, name: "Lay's Magic Masala", price: 20, category: "Snacks", image: "https://i.ibb.co/XfPYDVtb/IMG20240412123648.jpg", desc: "Indian magic masala flavor" },
+            { id: 4, name: "Fortune Mustard Oil (1L)", price: 145, category: "Groceries", image: "https://i.ibb.co/nNG4pLyf/IMG20240406175704.jpg", desc: "Kachi Ghani pure mustard oil" },
+            { id: 5, name: "Mother Dairy Paneer (200g)", price: 85, category: "Dairy", image: "https://i.ibb.co/23hLGSjp/IMG20240507091050.jpg", desc: "Soft and fresh malai paneer" },
+            { id: 6, name: "Haldiram's Bhujia (400g)", price: 110, category: "Snacks", image: "https://i.ibb.co/XfPYDVtb/IMG20240412123648.jpg", desc: "Classic crispy besan bhujia" },
+            { id: 7, name: "Tata Salt (1kg)", price: 25, category: "Groceries", image: "https://i.ibb.co/nNG4pLyf/IMG20240406175704.jpg", desc: "Vacuum evaporated iodized salt" },
+            { id: 8, name: "Thums Up (2L)", price: 95, category: "Beverages", image: "https://i.ibb.co/23hLGSjp/IMG20240507091050.jpg", desc: "Strong carbonated cold drink" }
+        ];
+
+        // --- State ---
+        let cart = JSON.parse(localStorage.getItem('shop_cart')) || [];
+        let currentCategory = 'All';
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            setupFilters();
+            renderProducts();
+            updateCartUI();
+        });
+
+        // --- Functions ---
+        function setupFilters() {
+            const categories = ['All', ...new Set(products.map(p => p.category))];
+            const filterContainer = document.getElementById('category-filters');
+            
+            categories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `filter-btn ${cat === 'All' ? 'active' : ''}`;
+                btn.textContent = cat;
+                btn.onclick = () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentCategory = cat;
+                    renderProducts();
+                };
+                filterContainer.appendChild(btn);
+            });
+        }
+
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+            
+            const filtered = currentCategory === 'All' 
+                ? products 
+                : products.filter(p => p.category === currentCategory);
+
+            filtered.forEach(product => {
+                grid.innerHTML += `
+                    <div class="card">
+                        <img src="${product.image}" alt="${product.name}" loading="lazy">
+                        <div class="card-body">
+                            <span class="category-tag">${product.category}</span>
+                            <h3 class="product-title">${product.name}</h3>
+                            <p class="product-desc">${product.desc}</p>
+                            <div class="price-row">
+                                <span class="price">₹${product.price}</span>
+                                <button class="add-btn" onclick="addToCart(${product.id})">+</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.qty += 1;
+            } else {
+                cart.push({ ...product, qty: 1 });
+            }
+            
+            saveCart();
+            updateCartUI();
+            
+            // Visual feedback
+            const badge = document.getElementById('cart-badge');
+            badge.style.transform = 'scale(1.5)';
+            setTimeout(() => badge.style.transform = 'scale(1)', 200);
+        }
+
+        function changeQty(productId, delta) {
+            const item = cart.find(i => i.id === productId);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== productId);
+                }
+                saveCart();
+                updateCartUI();
+            }
+        }
+
+        function removeItem(productId) {
+            cart = cart.filter(i => i.id !== productId);
+            saveCart();
+            updateCartUI();
+        }
+
+        function saveCart() {
+            localStorage.setItem('shop_cart', JSON.stringify(cart));
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const grandTotalEl = document.getElementById('grand-total');
+            const badge = document.getElementById('cart-badge');
+            const submitBtn = document.getElementById('submit-btn');
+
+            cartItemsContainer.innerHTML = '';
+            let total = 0;
+            let itemCount = 0;
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p style="text-align:center; margin-top:2rem; color:#666;">Your cart is empty</p>';
+                submitBtn.disabled = true;
+            } else {
+                submitBtn.disabled = false;
+                cart.forEach(item => {
+                    const itemTotal = item.price * item.qty;
+                    total += itemTotal;
+                    itemCount += item.qty;
+
+                    cartItemsContainer.innerHTML += `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="item-details">
+                                <div class="item-title">${item.name}</div>
+                                <div class="item-price">₹${item.price}</div>
+                                <div class="qty-controls">
+                                    <button class="qty-btn" onclick="changeQty(${item.id}, -1)">-</button>
+                                    <span>${item.qty}</span>
+                                    <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                                    <button class="remove-btn" onclick="removeItem(${item.id})">Remove</button>
+                                </div>
+                            </div>
+                            <div class="item-total" style="font-weight:600;">₹${itemTotal}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            grandTotalEl.textContent = `₹${total}`;
+            badge.textContent = itemCount;
+        }
+
+        function toggleCart() {
+            document.getElementById('modal-overlay').classList.toggle('active');
+            document.getElementById('cart-modal').classList.toggle('active');
+            
+            // Reset checkout view if they close and reopen
+            document.getElementById('success-message').style.display = 'none';
+            document.getElementById('cart-items').style.display = 'block';
+            document.getElementById('cart-footer').style.display = 'block';
+        }
+
+        // --- Checkout Logic ---
+        function submitOrder(event) {
+            event.preventDefault();
+            
+            if (cart.length === 0) return;
+
+            const form = document.getElementById('checkout-form');
+            const submitBtn = document.getElementById('submit-btn');
+            
+            // 1. Build readable order summary for the email
+            let orderSummary = "=== ORDER DETAILS ===\n\n";
+            let grandTotal = 0;
+            
+            cart.forEach(item => {
+                const subtotal = item.price * item.qty;
+                grandTotal += subtotal;
+                orderSummary += `${item.qty}x ${item.name} - ₹${subtotal}\n`;
+            });
+            
+            orderSummary += `\nGRAND TOTAL: ₹${grandTotal}\n`;
+            orderSummary += `\n=====================\n`;
+            
+            // Put it in the hidden field
+            document.getElementById('hidden-order-summary').value = orderSummary;
+
+            // 2. Change button state
+            submitBtn.textContent = 'Sending Order...';
+            submitBtn.disabled = true;
+
+            // 3. Submit via AJAX to prevent page reload
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                body: new FormData(form),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Success!
+                    cart = [];
+                    saveCart();
+                    updateCartUI();
+                    form.reset();
+                    
+                    // Show success UI
+                    document.getElementById('cart-items').style.display = 'none';
+                    document.getElementById('cart-footer').style.display = 'none';
+                    document.getElementById('success-message').style.display = 'block';
+                } else {
+                    alert('Oops! There was a problem submitting your order. Did you replace YOUR_FORM_ID_HERE with a real Formspree ID?');
+                }
+            })
+            .catch(error => {
+                alert('Oops! There was a network error.');
+            })
+            .finally(() => {
+                submitBtn.textContent = 'Place Order';
+                submitBtn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
